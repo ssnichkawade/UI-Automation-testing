@@ -1,0 +1,107 @@
+package Demo;
+
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openqa.selenium.By;
+		import org.openqa.selenium.WebDriver;
+		import org.openqa.selenium.WebElement;
+		import org.openqa.selenium.chrome.ChromeDriver;
+		import org.testng.annotations.BeforeTest;
+		import org.testng.annotations.Test;
+
+		public class Answer2 {
+
+		    WebDriver driver;
+
+		    @BeforeTest
+		    public void setup() {
+		        // Set system properties for ChromeDriver
+		    	System.setProperty("webdriver.chrome.driver", "C:\\Users\\HP\\eclipse-workspace\\TestDemo\\target\\ChromeDriver\\chromedriver.exe");
+
+		        // Initialize ChromeDriver instance
+		        driver = new ChromeDriver();
+		        
+		        // Maximize browser window
+		        driver.manage().window().maximize();
+		    }
+
+		    @Test
+		    public void InvalidCredintails() {
+		        // Navigate to website
+		        driver.get("https://www.saucedemo.com/");
+		        driver.findElement(By.xpath("/html/body/div/div/div[2]/div[1]/div/div/form/div[1]/input")).sendKeys("Shreeyash");
+		        driver.findElement(By.xpath("/html/body/div/div/div[2]/div[1]/div/div/form/div[2]/input")).sendKeys("password");
+		        driver.findElement(By.xpath("/html/body/div/div/div[2]/div[1]/div/div/form/input")).click();
+		      
+		     
+		        WebElement errorMessage = driver.findElement(By.xpath("/html/body/div/div/div[2]/div[1]/div/div/form/div[3]/h3"));
+		        String expectedErrorMessage = "Epic sadface: Username and password do not match any user in this service";
+		        String actualErrorMessage = errorMessage.getText();
+
+		        if (actualErrorMessage.equals(expectedErrorMessage)) {
+		            System.out.println("Error message is correct: " + actualErrorMessage);
+		        } else {
+		            System.out.println("Error message is incorrect. Expected: " + expectedErrorMessage
+		                    + ", Actual: " + actualErrorMessage);
+		            
+		            driver.quit();
+		        }
+		    }
+		    @Test
+		    public void ValidCredintails() {
+		        // Navigate to website
+		        driver.get("https://www.saucedemo.com/");
+		        driver.findElement(By.xpath("/html/body/div/div/div[2]/div[1]/div/div/form/div[1]/input")).sendKeys("standard_user");
+		        driver.findElement(By.xpath("/html/body/div/div/div[2]/div[1]/div/div/form/div[2]/input")).sendKeys("secret_sauce");
+		        driver.findElement(By.xpath("/html/body/div/div/div[2]/div[1]/div/div/form/input")).click();
+		        
+		     // Read item names from data file
+		        List<String> items = readItemNamesFromFile("C:\\Users\\HP\\eclipse-workspace\\LambdaTestDemo\\src\\test\\resources\\Test Data\\Test Data.csv");
+
+		        // Add items to cart
+		        for (String item : items) {
+		            WebElement addToCartButton = driver.findElement(By.xpath("/html/body/div::/html/body/div/div/div/div[1]/div[1]/div[3]/a" + item + "']"));
+		            addToCartButton.click();
+		        }
+
+		        // Navigate to the cart
+		        WebElement cartIcon = driver.findElement(By.className("/html/body/div/div/div/div[1]/div[1]/div[3]/a"));
+		        cartIcon.click();
+
+		        // Assert item is successfully added
+		        for (String item : items) {
+		            WebElement itemInCart = driver.findElement(By.xpath("//div[@class='cart_item']//div[text()='" + item + "']"));
+		            if (itemInCart.isDisplayed()) {
+		                System.out.println(item + " is successfully added to the cart.");
+		            } else {
+		                System.out.println(item + " is not added to the cart.");
+		            }
+		        }
+
+		        // Close the browser
+		        driver.quit();
+		    }
+
+		    private static List<String> readItemNamesFromFile(String filePath) {
+		        List<String> items = new ArrayList<>();
+
+		        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+		            String line;
+		            while ((line = br.readLine()) != null) {
+		                items.add(line);
+		            }
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        }
+
+		        return items;
+		    }
+		
+		    
+		    
+		    }
